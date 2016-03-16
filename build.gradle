@@ -1,0 +1,23 @@
+apply plugin: 'application'
+
+version = '0.1'
+mainClassName = 'com.amazonaws.services.kinesis.multilang.MultiLangDaemon'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    runtime 'com.amazonaws:amazon-kinesis-client:1.6.1'
+}
+
+run {
+    if (project.hasProperty('args')) {
+        args project.args.split('\\s+')
+    }
+    if (project.hasProperty('jvmArgs')) {
+        jvmArgs project.jvmArgs.split('\\s+')
+    }
+}
+
+// vim:set sts=4 sw=4 tw=0 et ft=groovy:

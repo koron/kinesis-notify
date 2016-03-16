@@ -60,6 +60,7 @@ func (c *consumer) toCmd(r *kinesis.KclRecord) (*exec.Cmd, error) {
 }
 
 func main() {
+	flag.Parse()
 	args := flag.Args()
 	if len(args) < 1 {
 		os.Exit(1)
