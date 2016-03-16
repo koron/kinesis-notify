@@ -8,9 +8,11 @@ Working with MultiLangDaemon in [amazon-kinesis-client](https://github.com/awsla
     $ cd $GOPATH
     $ go get -u github.com/koron/kinesis-notify
     $ cd github.com/koron/kinesis-notify
+    $ go install
+    $ go install ./cmd/kinesis-echo
     $ cp sample.properties src/main/resources
     # edit src/main/resources/sample.properties
-    $ go install
+
     $ gradle run -P=sample.properties
 
 ## LICENSE

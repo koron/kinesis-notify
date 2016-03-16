@@ -18,6 +18,8 @@ type consumer struct {
 	shardID string
 }
 
+var logger = log.New(os.Stderr, "", log.LstdFlags)
+
 func (c *consumer) Init(shardID string) error {
 	c.shardID = shardID
 	return nil
@@ -27,7 +29,7 @@ func (c *consumer) ProcessRecords(records []*kinesis.KclRecord, cp *kinesis.Chec
 	for _, r := range records {
 		cmd, err := c.toCmd(r)
 		if err != nil {
-			log.Printf("failed to make command: %s", err)
+			logger.Printf("failed to make command: %s", err)
 			continue
 		}
 		c.workers.Run(workerJob{Cmd: cmd})
