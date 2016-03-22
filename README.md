@@ -5,15 +5,16 @@ Working with MultiLangDaemon in [amazon-kinesis-client](https://github.com/awsla
 
 ## How to use
 
-    $ cd $GOPATH
     $ go get -u github.com/koron/kinesis-notify
-    $ cd github.com/koron/kinesis-notify
+    $ cd $GOPATH/github.com/koron/kinesis-notify
     $ go install
     $ go install ./cmd/kinesis-echo
-    $ cp sample.properties src/main/resources
-    # edit src/main/resources/sample.properties
+    $ cp sample.properties kinesis-notify.properties
 
-    $ gradle run -P=sample.properties
+    # edit kinesis-notify.properties
+    $ vi kinesis-notify.properties
+
+    $ ./run-kinesis-notify
 
 ## LICENSE
 
