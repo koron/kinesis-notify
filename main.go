@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/base64"
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 
 	"github.com/nieksand/gokinesis/src/kinesis"
@@ -62,15 +64,22 @@ func (c *consumer) toCmd(r *kinesis.KclRecord) (*exec.Cmd, error) {
 }
 
 func main() {
+	numWorkers := flag.Int("worker", runtime.NumCPU(), "num of workers")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) < 1 {
+		fmt.Fprintf(os.Stderr, `USAGE: %s [OPTIONS] {command args...}
+
+OPTIONS
+`, filepath.Base(os.Args[0]))
+		flag.PrintDefaults()
 		os.Exit(1)
 	}
+
 	c := &consumer{
 		cmd:     args[0],
 		args:    args[1:],
-		workers: newWorkers(runtime.NumCPU()),
+		workers: newWorkers(*numWorkers),
 	}
 	kinesis.Run(c)
 }
