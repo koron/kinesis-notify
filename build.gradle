@@ -1,7 +1,6 @@
-apply plugin: 'application'
+apply plugin: 'java'
 
 version = '0.1'
-mainClassName = 'com.amazonaws.services.kinesis.multilang.MultiLangDaemon'
 
 repositories {
     mavenCentral()
@@ -9,15 +8,6 @@ repositories {
 
 dependencies {
     runtime 'com.amazonaws:amazon-kinesis-client:1.6.1'
-}
-
-run {
-    if (project.hasProperty('args')) {
-        args project.args.split('\\s+')
-    }
-    if (project.hasProperty('jvmArgs')) {
-        jvmArgs project.jvmArgs.split('\\s+')
-    }
 }
 
 task copyJar(type: Copy) {
