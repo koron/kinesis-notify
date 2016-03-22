@@ -1,4 +1,6 @@
 *.exe
 /.gradle/
 /build/
+/kinesis-notify.property
 /src/main/resources/sample.properties
+/tmp/

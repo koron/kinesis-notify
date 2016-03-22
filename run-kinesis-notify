@@ -1,0 +1,8 @@
+#!/bin/sh
+
+P=.
+for f in lib/*.jar; do
+  P="$P;$f"
+done
+
+exec java -cp "$P" com.amazonaws.services.kinesis.multilang.MultiLangDaemon kinesis-notify.property
