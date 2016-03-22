@@ -16,6 +16,13 @@ Working with MultiLangDaemon in [amazon-kinesis-client](https://github.com/awsla
 
     $ ./run-kinesis-notify
 
+## Required runtime files
+
+*   `kinesis-notify` in PATH
+*   `run-kinesis-notify` in PATH or current dir
+*   `./lib/*.jar`
+*   `./kinesis-notify.properties`
+
 ## LICENSE
 
 MIT license.  See LICENSE.
