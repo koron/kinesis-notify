@@ -20,4 +20,9 @@ run {
     }
 }
 
+task copyJar(type: Copy) {
+    from configurations.runtime
+    into 'lib'
+}
+
 // vim:set sts=4 sw=4 tw=0 et ft=groovy:
