@@ -17,6 +17,7 @@ type consumer struct {
 	cmd     string
 	args    []string
 	workers *workers
+	cpFirst bool
 	shardID string
 }
 
@@ -28,6 +29,11 @@ func (c *consumer) Init(shardID string) error {
 }
 
 func (c *consumer) ProcessRecords(records []*kinesis.KclRecord, cp *kinesis.Checkpointer) error {
+	if c.cpFirst {
+		cp.CheckpointAll()
+	} else {
+		defer cp.CheckpointAll()
+	}
 	for _, r := range records {
 		cmd, err := c.toCmd(r)
 		if err != nil {
@@ -37,7 +43,6 @@ func (c *consumer) ProcessRecords(records []*kinesis.KclRecord, cp *kinesis.Chec
 		c.workers.Run(workerJob{Cmd: cmd})
 	}
 	c.workers.Wait()
-	cp.CheckpointAll()
 	return nil
 }
 
@@ -65,6 +70,7 @@ func (c *consumer) toCmd(r *kinesis.KclRecord) (*exec.Cmd, error) {
 
 func main() {
 	numWorkers := flag.Int("worker", runtime.NumCPU(), "num of workers")
+	cpFirst := flag.Bool("checkpointfirst", false, "update check point at first of ProcessRecords")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) < 1 {
@@ -80,6 +86,7 @@ OPTIONS
 		cmd:     args[0],
 		args:    args[1:],
 		workers: newWorkers(*numWorkers),
+		cpFirst: *cpFirst,
 	}
 	kinesis.Run(c)
 }

@@ -23,6 +23,13 @@ Working with MultiLangDaemon in [amazon-kinesis-client](https://github.com/awsla
 *   `./lib/*.jar`
 *   `./kinesis-notify.properties`
 
+## Options
+
+*   `-worker {NUM}` Number of workers (parallel jobs).  Default is equals with
+    number of logical CPU core.
+*   `-checkpointfirst` Update check point at first of receiving records (each
+    calls of ProcessingRecords).  Default false.
+
 ## LICENSE
 
 MIT license.  See LICENSE.
