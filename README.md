@@ -27,8 +27,13 @@ Working with MultiLangDaemon in [amazon-kinesis-client](https://github.com/awsla
 
 *   `-worker {NUM}` Number of workers (parallel jobs).  Default is equals with
     number of logical CPU core.
+*   `-retry {NUM}` Max count of retry failed command.  Default is zero - don't
+    retry.
 *   `-checkpointfirst` Update check point at first of receiving records (each
     calls of ProcessingRecords).  Default false.
+*   `-logname` Used for core name of log file.  Filename is determined by
+    format `{logname}-{shardID}.log`.  If not specified, output to STDERR
+    instead of file.
 
 ## LICENSE
 
