@@ -16,16 +16,30 @@ import (
 type consumer struct {
 	cmd      string
 	args     []string
+
 	workers  *workers
 	retryMax int
 	cpFirst  bool
+	logname  string
+
 	shardID  string
+	logFile  *os.File
 }
 
 var logger = log.New(os.Stderr, "", log.LstdFlags)
 
 func (c *consumer) Init(shardID string) error {
 	c.shardID = shardID
+	// Replace logger with file
+	if c.logname != "" {
+		name := fmt.Sprintf("%s-%s.log", c.logname, c.shardID)
+		f, err := os.OpenFile(name, os.O_APPEND|os.O_WRONLY, 0666)
+		if err != nil {
+			return err
+		}
+		c.logFile = f
+		logger = log.New(c.logFile, "", log.LstdFlags)
+	}
 	return nil
 }
 
@@ -44,6 +58,7 @@ func (c *consumer) ProcessRecords(records []*kinesis.KclRecord, cp *kinesis.Chec
 
 func (c *consumer) Shutdown(shutdownType kinesis.ShutdownType, cp *kinesis.Checkpointer) error {
 	c.workers.Wait()
+	c.logFile.Close()
 	return nil
 }
 
@@ -93,6 +108,7 @@ func main() {
 	numWorkers := flag.Int("worker", runtime.NumCPU(), "num of workers")
 	numRetry := flag.Int("retry", 0, "retry count")
 	cpFirst := flag.Bool("checkpointfirst", false, "update check point at first of ProcessRecords")
+	logname := flag.String("logname", "", "core name for log files")
 	flag.Parse()
 	args := flag.Args()
 	if len(args) < 1 {
@@ -110,6 +126,7 @@ OPTIONS
 		workers:  newWorkers(*numWorkers),
 		retryMax: *numRetry,
 		cpFirst:  *cpFirst,
+		logname:  *logname,
 	}
 	kinesis.Run(c)
 }

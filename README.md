@@ -31,6 +31,9 @@ Working with MultiLangDaemon in [amazon-kinesis-client](https://github.com/awsla
     retry.
 *   `-checkpointfirst` Update check point at first of receiving records (each
     calls of ProcessingRecords).  Default false.
+*   `-logname` Used for core name of log file.  Filename is determined by
+    format `{logname}-{shardID}.log`.  If not specified, output to STDERR
+    instead of file.
 
 ## LICENSE
 
