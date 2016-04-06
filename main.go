@@ -33,7 +33,7 @@ func (c *consumer) Init(shardID string) error {
 	// Replace logger with file
 	if c.logname != "" {
 		name := fmt.Sprintf("%s-%s.log", c.logname, c.shardID)
-		f, err := os.OpenFile(name, os.O_APPEND|os.O_WRONLY, 0666)
+		f, err := os.OpenFile(name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 		if err != nil {
 			return err
 		}
