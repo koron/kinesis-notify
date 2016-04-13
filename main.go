@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -14,16 +15,16 @@ import (
 )
 
 type consumer struct {
-	cmd      string
-	args     []string
+	cmd  string
+	args []string
 
 	workers  *workers
 	retryMax int
 	cpFirst  bool
 	logname  string
 
-	shardID  string
-	logFile  *os.File
+	shardID string
+	logWC   io.WriteCloser
 }
 
 var logger = log.New(os.Stderr, "", log.LstdFlags)
@@ -32,13 +33,11 @@ func (c *consumer) Init(shardID string) error {
 	c.shardID = shardID
 	// Replace logger with file
 	if c.logname != "" {
-		name := fmt.Sprintf("%s-%s.log", c.logname, c.shardID)
-		f, err := os.OpenFile(name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
-		if err != nil {
-			return err
+		c.logWC = &periodicWriter{
+			Prefix: c.logname,
+			Suffix: c.shardID + ".log",
 		}
-		c.logFile = f
-		logger = log.New(c.logFile, "", log.LstdFlags)
+		logger = log.New(c.logWC, "", log.LstdFlags)
 	}
 	return nil
 }
@@ -58,7 +57,7 @@ func (c *consumer) ProcessRecords(records []*kinesis.KclRecord, cp *kinesis.Chec
 
 func (c *consumer) Shutdown(shutdownType kinesis.ShutdownType, cp *kinesis.Checkpointer) error {
 	c.workers.Wait()
-	c.logFile.Close()
+	c.logWC.Close()
 	return nil
 }
 
@@ -80,7 +79,8 @@ func (c *consumer) newFin(rec *kinesis.KclRecord, failedCount int) func(workerRe
 			return
 		}
 		if failedCount += 1; failedCount > c.retryMax {
-			logger.Printf("gave up retry, last error: %s", res.Error)
+			logger.Printf("gave up retry, last error:%s, base64 body:%s",
+				res.Error, rec.DataB64)
 			return
 		}
 		c.run(rec, failedCount)
