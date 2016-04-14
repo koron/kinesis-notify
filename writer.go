@@ -75,5 +75,6 @@ func (w *periodicWriter) newFile() error {
 		return err
 	}
 	w.f = f
+	w.y, w.m, w.d = time.Now().Date()
 	return nil
 }
