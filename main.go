@@ -21,24 +21,15 @@ type consumer struct {
 	workers  *workers
 	retryMax int
 	cpFirst  bool
-	logname  string
 
 	shardID string
-	logWC   io.WriteCloser
 }
 
 var logger = log.New(os.Stderr, "", log.LstdFlags)
 
 func (c *consumer) Init(shardID string) error {
 	c.shardID = shardID
-	// Replace logger with file
-	if c.logname != "" {
-		c.logWC = &periodicWriter{
-			Prefix: c.logname,
-			Suffix: c.shardID + ".log",
-		}
-		logger = log.New(c.logWC, "", log.LstdFlags)
-	}
+	logger.Printf("shard ID: %s", shardID)
 	return nil
 }
 
@@ -57,7 +48,6 @@ func (c *consumer) ProcessRecords(records []*kinesis.KclRecord, cp *kinesis.Chec
 
 func (c *consumer) Shutdown(shutdownType kinesis.ShutdownType, cp *kinesis.Checkpointer) error {
 	c.workers.Wait()
-	c.logWC.Close()
 	return nil
 }
 
@@ -120,13 +110,27 @@ OPTIONS
 		os.Exit(1)
 	}
 
+	// write log to a file.
+	var logWC io.WriteCloser
+	if *logname != "" {
+		ext := filepath.Ext(*logname)
+		logWC := &periodicWriter{
+			Prefix: (*logname)[0 : len(*logname)-len(ext)],
+			Suffix: ext,
+		}
+		logger = log.New(logWC, "", log.LstdFlags)
+	}
+
 	c := &consumer{
 		cmd:      args[0],
 		args:     args[1:],
 		workers:  newWorkers(*numWorkers),
 		retryMax: *numRetry,
 		cpFirst:  *cpFirst,
-		logname:  *logname,
 	}
 	kinesis.Run(c)
+
+	if logWC != nil {
+		logWC.Close()
+	}
 }

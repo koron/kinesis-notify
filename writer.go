@@ -64,8 +64,15 @@ func (w *periodicWriter) newFile() error {
 			return err
 		}
 		w.f = nil
+		// rename a log file.
+		newName := fmt.Sprintf("%s-%04d%02d%02d%s", w.Prefix, w.y, w.m, w.d,
+			w.Suffix)
+		err = os.Rename(w.Prefix+w.Suffix, newName)
+		if err != nil {
+			return err
+		}
 	}
-	name := fmt.Sprintf("%s-%04d%02d%02d-%s", w.Prefix, w.y, w.m, w.d, w.Suffix)
+	name := w.Prefix + w.Suffix
 	dir := filepath.Dir(name)
 	if err := os.MkdirAll(dir, 0777); err != nil {
 		return err
